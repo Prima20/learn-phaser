@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Simple Flappy bird Game</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+        @font-face {
+        font-family: "Game Font";
+        src: url(./assets/font/04B_19__.TTF) format("truetype");
+        }
+    </style>
+</head>
+
+<body>
+
+    <script type="text/javascript">
+
+        const gameState = { score: 0 }
+
+        class GameScene extends Phaser.Scene {
+            constructor() {
+                super({ key: 'GameScene' });
+            }
+
+            preload() {
+                this.load.spritesheet('bird', './assets/sprites/Birds.png', { frameWidth: 34, frameHeight: 24 });
+                this.load.image('background', './assets/sprites/background-day.png');
+                this.load.image('ground', './assets/sprites/Ground.png');
+                this.load.image('pipe', './assets/sprites/pipe-green.png');
+                this.load.audio('wing', './assets/sound/wing.ogg');
+                this.load.audio('hit', './assets/sound/hit.ogg');
+            }
+            create() {
+                gameState.active = true;
+                gameState.pipeSpeed = 4;
+                this.add.image(0, 0, 'background').setOrigin(0, 0);
+                gameState.pipe1 = this.physics.add.sprite(300, 450, 'pipe');
+                gameState.pipe2 = this.physics.add.sprite(300, 10, 'pipe').setFlip(0, 1);
+                gameState.pipe1.body.setAllowGravity(false);
+                gameState.pipe2.body.setAllowGravity(false);
+                const ground = this.physics.add.staticGroup();
+                ground.create(144, 512, 'ground');
+                gameState.bird = this.physics.add.sprite(144, 216, 'bird');
+                gameState.bird.setCollideWorldBounds(true);
+                gameState.wingSound = this.sound.add('wing');
+                gameState.hitSound = this.sound.add('hit');
+
+                this.anims.create({
+                    key: 'fly',
+                    frames: this.anims.generateFrameNumbers('bird', { start: 0, end: 3 }),
+                    frameRate: 5,
+                    repeat: -1
+                });
+
+                gameState.scoreText = this.add.text(144, 30, "0", { font: "40px  Game Font", fill: "#ffff" });
+
+                gameState.cursors = this.input.keyboard.createCursorKeys();
+                this.physics.add.collider(gameState.bird, ground, () => {
+                    this.physics.pause();
+                    gameState.hitSound.play();
+                    gameState.active = false;
+                    gameState.bird.anims.stop(null, true);
+                    this.add.text(100, 216, 'Game Over', { font: '20px Game Font', fill: '#ffff' });
+                    this.add.text(80, 250, 'Click to Restart', { font: '20px Game Font', fill: '#ffff' });
+                    this.input.on('pointerup', () => {
+                        gameState.score = 0;
+                        this.scene.restart();
+                    });
+
+                });
+                this.physics.add.collider(gameState.pipe1, gameState.bird, () => {
+                    this.physics.pause();
+                    gameState.hitSound.play();
+                    gameState.bird.anims.stop(null, true);
+                    gameState.active = false;
+                    this.add.text(100, 216, 'Game Over', { font: '20px Game Font', fill: '#ffff' });
+                    this.add.text(80, 250, 'Click to Restart', { font: '20px Game Font', fill: '#ffff' });
+                    this.input.on('pointerup', () => {
+                        gameState.score = 0;
+                        this.scene.restart();
+                    });
+                });
+                this.physics.add.collider(gameState.pipe2, gameState.bird, () => {
+                    this.physics.pause();
+                    gameState.hitSound.play();
+                    gameState.active = false;
+                    this.add.text(100, 216, 'Game Over', { font: '20px Game Font', fill: '#ffff' });
+                    this.add.text(80, 250, 'Click to Restart', { font: '20px Game Font', fill: '#ffff' });
+                    gameState.bird.anims.stop(null, true);
+                    this.input.on('pointerup', () => {
+                        gameState.score = 0;
+                        this.scene.restart();
+                    });
+                });
+            }
+            update() {
+            if(gameState.active){
+                gameState.bird.anims.play('fly', true);
+                gameState.pipe1.x -= gameState.pipeSpeed;
+                gameState.pipe2.x -= gameState.pipeSpeed;
+                if (gameState.pipe1.x < 0) {
+                    gameState.pipe1.x = 288;
+                    gameState.pipe2.x = 288;
+                    var highness = getRndInteger(450, 512) + 10;
+                    gameState.pipe1.y = highness;
+                    gameState.pipe2.y = highness - 440;
+                    gameState.score += 1;
+                    gameState.scoreText.setText(`${gameState.score}`);
+
+                }
+
+                if (gameState.cursors.up.isDown) {
+                    gameState.wingSound.play();
+                    gameState.bird.setVelocityY(-150);
+                }
+            }
+
+                function getRndInteger(min, max) {
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+            }
+
+        }
+
+
+        const config = {
+            type: Phaser.AUTO,
+            parent: 'phaser-game',
+            backgroundColor: 0xffc836,
+            width: 288,
+            height: 512,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 300 },
+                    enableBody: true,
+                }
+            },
+            scene: [GameScene]
+        };
+
+        const game = new Phaser.Game(config);
+
+
+    </script>
+
+</body>
+
+</html>
