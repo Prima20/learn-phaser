@@ -114,10 +114,10 @@
 
                 }
 
-                if (gameState.cursors.up.isDown) {
-                    gameState.wingSound.play();
-                    gameState.bird.setVelocityY(-150);
-                }
+                this.input.on('pointerdown', () => {
+                  gameState.wingSound.play();
+                  gameState.bird.setVelocityY(-150);
+                });
             }
 
                 function getRndInteger(min, max) {
