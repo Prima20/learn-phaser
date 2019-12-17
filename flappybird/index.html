@@ -4,10 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <title>Simple Flappy bird Game</title>
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.21.0/dist/phaser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <style type="text/css">
-        body {
-            margin: 0;
+        body{
+          height: 100%;
         }
         @font-face {
         font-family: "Game Font";
@@ -28,6 +29,7 @@
             }
 
             preload() {
+
                 this.load.spritesheet('bird', './assets/sprites/Birds.png', { frameWidth: 34, frameHeight: 24 });
                 this.load.image('background', './assets/sprites/background-day.png');
                 this.load.image('ground', './assets/sprites/Ground.png');
@@ -36,6 +38,7 @@
                 this.load.audio('hit', './assets/sound/hit.ogg');
             }
             create() {
+
                 gameState.active = true;
                 gameState.pipeSpeed = 4;
                 this.add.image(0, 0, 'background').setOrigin(0, 0);
@@ -57,7 +60,7 @@
                     repeat: -1
                 });
 
-                gameState.scoreText = this.add.text(144, 30, "0", { font: "40px  Game Font", fill: "#ffff" });
+                gameState.scoreText = this.add.text(144, 30, "0", { font: '20px  Game Font', fill: '#ffff'});
 
                 gameState.cursors = this.input.keyboard.createCursorKeys();
                 this.physics.add.collider(gameState.bird, ground, () => {
@@ -99,6 +102,11 @@
                 });
             }
             update() {
+
+              // this.scale.pageAlignHorizontally = true;
+              // this.scale.pageAlignVertically = true;
+              // this.scale.refresh();
+
             if(gameState.active){
                 gameState.bird.anims.play('fly', true);
                 gameState.pipe1.x -= gameState.pipeSpeed;
@@ -127,13 +135,19 @@
 
         }
 
-
         const config = {
             type: Phaser.AUTO,
-            parent: 'phaser-game',
+            parent: 'canvas',
             backgroundColor: 0xffc836,
-            width: 288,
-            height: 512,
+            scale: {
+                mode: Phaser.Scale.FIT,
+                parent: 'phaser-example',
+                width:  288,
+                height: 512
+              },
+            //width: 288,
+            //height: 512,
+            //scaleMode:   Phaser.ScaleManager.USER_SCALE,
             physics: {
                 default: 'arcade',
                 arcade: {
